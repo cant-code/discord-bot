@@ -25,9 +25,10 @@ def get_audio(id):
 
 @bot.command()
 async def join(ctx):
+  global vc
   try:
     channel = ctx.author.voice.channel
-    await channel.connect()
+    vc = await channel.connect()
   except AttributeError:
     await ctx.channel.send("You should be in a voice channel to add the bot")
   except ClientException:
@@ -91,22 +92,30 @@ async def on_voice_state_update(member: discord.Member, before, after):
     if vc_before == vc_after:
         return
     if vc_before is None:
+      try:
         channel = member.voice.channel
         vc = await channel.connect()
         vc.play(discord.FFmpegPCMAudio(path))
         with audioread.audio_open(path) as f:
             sleep(f.duration)
         await vc.disconnect()
+      except:
+        sleep(.5)
+        vc.play(discord.FFmpegPCMAudio(path))
 
     elif vc_after is None:
         return
     else:
+      try:
         channel = member.voice.channel
         vc = await channel.connect()
         vc.play(discord.FFmpegPCMAudio(path))
         with audioread.audio_open(path) as f:
           sleep(f.duration)
         await vc.disconnect()
+      except:
+        sleep(.5)
+        vc.play(discord.FFmpegPCMAudio(path))
 
 
 @bot.event
