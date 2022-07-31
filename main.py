@@ -4,8 +4,6 @@ from discord import ClientException
 import os
 import audioread
 from time import sleep
-from keep_alive import keep_alive
-from replit import db
 
 bot = commands.Bot(command_prefix='$')
 bot.remove_command('help')
@@ -13,14 +11,12 @@ bot.remove_command('help')
 vc = None
 
 
-def update_audio(id, audio):
-  db[id] = audio
-
-
-def get_audio(id):
-  if id in db.keys():
-    return db[id]
-  return r"sound.mp3"
+@bot.command()
+async def fuckyou(ctx, member: discord.Member=None):
+  try:
+    await ctx.channel.send("Yeah, fuck you {}".format(member.mention))
+  except:
+    await ctx.channel.send("No, fuck you {}".format(ctx.author.mention))
 
 
 @bot.command()
@@ -132,5 +128,4 @@ async def on_message(message):
   await bot.process_commands(message)
 
 
-keep_alive()
 bot.run(os.environ['TOKEN'])
