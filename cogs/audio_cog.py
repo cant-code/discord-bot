@@ -28,9 +28,11 @@ class audio_cog(commands.Cog):
         return {'source': info['formats'][0]['url'], 'title': info['title']}
 
 
-    async def play_next(self, ctx):
+    def play_next(self, ctx):
         if len(self.items) > 0:
-            await self.play_audio(ctx)
+            item = self.items.pop(0)
+            url = item['source']
+            ctx.voice_client.play(discord.FFmpegPCMAudio(url), after = lambda e: self.play_next(ctx))
 
 
     async def play_audio(self, ctx):
