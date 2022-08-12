@@ -5,8 +5,12 @@ import os
 import audioread
 from time import sleep
 
-bot = commands.Bot(command_prefix='$')
+from cogs.audio_cog import audio_cog
+
+bot = commands.Bot(command_prefix='!')
 bot.remove_command('help')
+
+bot.add_cog(audio_cog(bot))
 
 vc = None
 
@@ -29,30 +33,6 @@ async def join(ctx):
     await ctx.channel.send("You should be in a voice channel to add the bot")
   except ClientException:
     await ctx.channel.send("Bot already in a channel")
-
-
-@bot.command()
-async def hajime(ctx):
-  try:
-    path = r"./sounds/hajime.mp3"
-    ctx.voice_client.play(discord.FFmpegPCMAudio(path))
-  except AttributeError:
-    await ctx.invoke(bot.get_command(name='join'))
-    await ctx.reinvoke()
-  except ClientException:
-    await ctx.channel.send("Audio already playing")
-
-
-@bot.command()
-async def arigato(ctx):
-  try:
-    path = r"./sounds/arigato.mp3"
-    ctx.voice_client.play(discord.FFmpegPCMAudio(path))
-  except AttributeError:
-    await ctx.invoke(bot.get_command(name='join'))
-    await ctx.reinvoke()
-  except ClientException:
-    await ctx.channel.send("Audio already playing")
 
 
 @bot.command()
@@ -85,21 +65,7 @@ async def on_voice_state_update(member: discord.Member, before, after):
     vc_before = before.channel
     vc_after = after.channel
     global vc
-    if vc_before == vc_after:
-        return
-    if vc_before is None:
-      try:
-        channel = member.voice.channel
-        vc = await channel.connect()
-        vc.play(discord.FFmpegPCMAudio(path))
-        with audioread.audio_open(path) as f:
-            sleep(f.duration)
-        await vc.disconnect()
-      except:
-        sleep(.5)
-        vc.play(discord.FFmpegPCMAudio(path))
-
-    elif vc_after is None:
+    if vc_before == vc_after or vc_after is None:
         return
     else:
       try:
@@ -116,7 +82,6 @@ async def on_voice_state_update(member: discord.Member, before, after):
 
 @bot.event
 async def on_message(message):
-  global vc
   if message.author == bot.user:
     return
   
