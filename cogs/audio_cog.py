@@ -12,7 +12,6 @@ class audio_cog(commands.Cog):
 
         # 2d array containing [song, channel]
         self.YDL_OPTIONS = {'format': 'bestaudio'}
-        self.FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
 
         self.item = None
 
@@ -33,7 +32,7 @@ class audio_cog(commands.Cog):
         url = getattr(self.item, 'source', self.item)
 
         try:
-            ctx.voice_client.play(discord.FFmpegPCMAudio(url, **self.FFMPEG_OPTIONS))
+            ctx.voice_client.play(discord.FFmpegPCMAudio(url))
         except AttributeError:
             await ctx.invoke(self.bot.get_command(name='join'))
             await ctx.reinvoke()
