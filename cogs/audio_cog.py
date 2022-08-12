@@ -103,7 +103,7 @@ class audio_cog(commands.Cog):
             )
 
             embed.set_author(name='List')
-            for i in self.items: embed.add_field(name='Item', value=i['title'], inline=False)
+            for i in self.items: embed.add_field(name=i['title'], inline=False)
 
             await ctx.channel.send(embed=embed)
         else:
