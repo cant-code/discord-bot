@@ -56,7 +56,8 @@ class audio_cog(commands.Cog):
             await ctx.send("Could not download the audio.")
         else:
             self.items.append(audio)
-            await self.play_audio(ctx)
+            if not ctx.voice_client.is_playing():
+                await self.play_audio(ctx)
 
 
     @commands.command()
@@ -87,7 +88,7 @@ class audio_cog(commands.Cog):
     async def skip(self, ctx):
         if ctx.voice_client.is_playing():
             ctx.voice_client.stop()
-            self.play_next()
+            self.play_next(ctx)
         else:
             await ctx.send("No item currently playing")
 
