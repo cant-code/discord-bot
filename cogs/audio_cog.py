@@ -39,7 +39,7 @@ class audio_cog(commands.Cog):
         url = item['source']
 
         try:
-            ctx.voice_client.play(discord.FFmpegPCMAudio(url), after = lambda e: await self.play_next(ctx))
+            ctx.voice_client.play(discord.FFmpegPCMAudio(url), after = lambda e: self.play_next(ctx))
         except AttributeError:
             await ctx.invoke(self.bot.get_command(name='join'))
             await ctx.reinvoke()
