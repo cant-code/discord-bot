@@ -54,12 +54,12 @@ class audio_cog(commands.Cog):
 
     @commands.command()
     async def hajime(self, ctx):
-        self.item = r"../sounds/hajime.mp3"
+        self.item = r"./sounds/hajime.mp3"
         await self.play_audio(ctx)
 
 
 
     @commands.command()
     async def arigato(self, ctx):
-        self.item = r"../sounds/arigato.mp3"
+        self.item = r"./sounds/arigato.mp3"
         await self.play_audio(ctx)
