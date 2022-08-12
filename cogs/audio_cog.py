@@ -28,9 +28,9 @@ class audio_cog(commands.Cog):
         return {'source': info['formats'][0]['url'], 'title': info['title']}
 
 
-    def play_next(self, ctx):
+    async def play_next(self, ctx):
         if len(self.items) > 0:
-            self.play_audio(ctx)
+            await self.play_audio(ctx)
 
 
     async def play_audio(self, ctx):
@@ -39,7 +39,7 @@ class audio_cog(commands.Cog):
         url = item['source']
 
         try:
-            ctx.voice_client.play(discord.FFmpegPCMAudio(url), after = lambda e: self.play_next(ctx))
+            ctx.voice_client.play(discord.FFmpegPCMAudio(url), after = lambda e: await self.play_next(ctx))
         except AttributeError:
             await ctx.invoke(self.bot.get_command(name='join'))
             await ctx.reinvoke()
@@ -88,7 +88,7 @@ class audio_cog(commands.Cog):
     async def skip(self, ctx):
         if ctx.voice_client.is_playing():
             ctx.voice_client.stop()
-            self.play_next(ctx)
+            await self.play_next(ctx)
         else:
             await ctx.send("No item currently playing")
 
