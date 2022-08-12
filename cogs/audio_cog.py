@@ -29,7 +29,7 @@ class audio_cog(commands.Cog):
 
 
     async def play_audio(self, ctx):
-        url = getattr(self.item, 'source', self.item)
+        url = self.item['source'] if self.item['source'] is not None else self.item
 
         try:
             ctx.voice_client.play(discord.FFmpegPCMAudio(url))
