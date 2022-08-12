@@ -13,7 +13,7 @@ class audio_cog(commands.Cog):
         # 2d array containing [song, channel]
         self.YDL_OPTIONS = {'format': 'bestaudio'}
 
-        self.item = None
+        self.items = []
 
         self.vc = None
 
@@ -28,11 +28,18 @@ class audio_cog(commands.Cog):
         return {'source': info['formats'][0]['url'], 'title': info['title']}
 
 
+    def play_next(self, ctx):
+        if len(self.items) > 0:
+            self.play_audio(ctx)
+
+
     async def play_audio(self, ctx):
-        url = self.item['source'] if type(self.item) is dict else self.item
+        item = self.items.pop(0)
+
+        url = item['source']
 
         try:
-            ctx.voice_client.play(discord.FFmpegPCMAudio(url))
+            ctx.voice_client.play(discord.FFmpegPCMAudio(url), after = lambda e: self.play_next(ctx))
         except AttributeError:
             await ctx.invoke(self.bot.get_command(name='join'))
             await ctx.reinvoke()
@@ -48,7 +55,7 @@ class audio_cog(commands.Cog):
         if type(audio) == type(True):
             await ctx.send("Could not download the audio.")
         else:
-            self.item = audio
+            self.items.append(audio)
             await self.play_audio(ctx)
 
 
@@ -74,7 +81,30 @@ class audio_cog(commands.Cog):
             ctx.voice_client.stop()
         else:
             await ctx.send("No item currently playing")
-        
+
+
+    @commands.command()
+    async def skip(self, ctx):
+        if ctx.voice_client.is_playing():
+            ctx.voice_client.stop()
+            self.play_next()
+        else:
+            await ctx.send("No item currently playing")
+
+
+    @commands.command()
+    async def queue(self, ctx):
+        if len(self.items) > 0:
+            embed = discord.Embed(
+                colour = discord.Colour.purple()
+            )
+
+            embed.set_author(name='List')
+            for i in self.items: embed.add_field(name='Item', value=i['title'], inline=False)
+
+            await ctx.channel.send(embed=embed)
+        else:
+            await ctx.send("Queue is empty")
 
     
     @commands.command()
@@ -85,18 +115,18 @@ class audio_cog(commands.Cog):
         if type(audio) == type(True):
             await ctx.send("Could not download the audio.")
         else:
-            self.item = audio
+            self.items.append(audio)
             await self.play_audio(ctx)
 
 
     @commands.command()
     async def hajime(self, ctx):
-        self.item = r"./sounds/hajime.mp3"
+        self.items.append({'source': r"./sounds/hajime.mp3", 'title': 'Hajime'})
         await self.play_audio(ctx)
 
 
 
     @commands.command()
     async def arigato(self, ctx):
-        self.item = r"./sounds/arigato.mp3"
+        self.items.append({'source': r"./sounds/arigato.mp3", 'title': 'Arigato'})
         await self.play_audio(ctx)
