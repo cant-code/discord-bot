@@ -56,7 +56,7 @@ class audio_cog(commands.Cog):
             await ctx.send("Could not download the audio.")
         else:
             self.items.append(audio)
-            if ctx.voice_client is not None and ctx.voice_client.is_connected() and not ctx.voice_client.is_playing():
+            if ctx.voice_client is None or (ctx.voice_client.is_connected() and not ctx.voice_client.is_playing()):
                 await self.play_audio(ctx)
 
 
