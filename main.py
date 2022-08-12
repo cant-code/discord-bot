@@ -71,10 +71,11 @@ async def on_voice_state_update(member: discord.Member, before, after):
       try:
         channel = member.voice.channel
         vc = await channel.connect()
-        vc.play(discord.FFmpegPCMAudio(path))
-        with audioread.audio_open(path) as f:
-          sleep(f.duration)
-        await vc.disconnect()
+        if vc is not None:
+          vc.play(discord.FFmpegPCMAudio(path))
+          with audioread.audio_open(path) as f:
+            sleep(f.duration)
+          await vc.disconnect()
       except:
         sleep(.5)
         vc.play(discord.FFmpegPCMAudio(path))
