@@ -39,6 +39,18 @@ class audio_cog(commands.Cog):
         except ClientException:
             await ctx.channel.send("Audio already playing")
 
+
+    @commands.command()
+    async def play(self, ctx, *args):
+        query = " ".join(args)
+
+        audio = self.search_yt(query)
+        if type(audio) == type(True):
+            await ctx.send("Could not download the audio.")
+        else:
+            self.item = audio
+            await self.play_audio(ctx)
+
     
     @commands.command()
     async def onichan(self, ctx):
