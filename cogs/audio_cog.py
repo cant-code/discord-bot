@@ -29,7 +29,7 @@ class audio_cog(commands.Cog):
 
 
     async def play_audio(self, ctx):
-        url = self.item['source'] if self.item['source'] is not None else self.item
+        url = self.item['source'] if type(self.item) is dict else self.item
 
         try:
             ctx.voice_client.play(discord.FFmpegPCMAudio(url))
@@ -50,6 +50,31 @@ class audio_cog(commands.Cog):
         else:
             self.item = audio
             await self.play_audio(ctx)
+
+
+    @commands.command()
+    async def pause(self, ctx):
+        if ctx.voice_client.is_playing():
+            ctx.voice_client.pause()
+        else:
+            await ctx.send("No item to pause")
+
+
+    @commands.command()
+    async def resume(self, ctx):
+        if ctx.voice_client.is_paused():
+            ctx.voice_client.resume()
+        else:
+            await ctx.send("No item to resume")
+
+
+    @commands.command()
+    async def stop(self, ctx):
+        if ctx.voice_client.is_playing() or ctx.voice_client.is_paused():
+            ctx.voice_client.stop()
+        else:
+            await ctx.send("No item currently playing")
+        
 
     
     @commands.command()
