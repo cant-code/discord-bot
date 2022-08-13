@@ -17,6 +17,8 @@ class audio_cog(commands.Cog):
 
         self.vc = None
 
+        self.retries = 0
+
 
     def search_yt(self, url):
         with YoutubeDL(self.YDL_OPTIONS) as ydl:
@@ -43,8 +45,12 @@ class audio_cog(commands.Cog):
         try:
             ctx.voice_client.play(discord.FFmpegPCMAudio(url), after = lambda e: self.play_next(ctx))
         except AttributeError:
-            await ctx.invoke(self.bot.get_command(name='join'))
-            await ctx.reinvoke()
+            if self.retries < 2:
+                await ctx.invoke(self.bot.get_command(name='join'))
+                await ctx.reinvoke()
+            else:
+                self.retries = 0
+                await ctx.send("Retries exhausted.")
         except ClientException:
             await ctx.channel.send("Audio already playing")
 
