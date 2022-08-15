@@ -46,6 +46,7 @@ class audio_cog(commands.Cog):
             ctx.voice_client.play(discord.FFmpegPCMAudio(url), after = lambda e: self.play_next(ctx))
         except AttributeError:
             if self.retries < 2:
+                self.retries += 1
                 await ctx.invoke(self.bot.get_command(name='join'))
                 await ctx.reinvoke()
             else:
