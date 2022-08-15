@@ -70,6 +70,8 @@ async def on_voice_state_update(member: discord.Member, before, after):
     else:
       try:
         channel = member.voice.channel
+        if channel is not None and len(channel.members) == 1:
+          await member.guild.voice_client.disconnect()
         vc = await channel.connect()
         if vc is not None:
           vc.play(discord.FFmpegPCMAudio(path))

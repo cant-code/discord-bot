@@ -96,7 +96,7 @@ class audio_cog(commands.Cog):
     async def skip(self, ctx):
         if ctx.voice_client.is_playing():
             ctx.voice_client.stop()
-            await self.play_next(ctx)
+            self.play_next(ctx)
         else:
             await ctx.send("No item currently playing")
 
