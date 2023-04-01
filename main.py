@@ -1,50 +1,58 @@
 import discord
+from discord import ClientException, VoiceState
 from discord.ext import commands
-from discord import ClientException
 import os
 import audioread
 from time import sleep
 
 from cogs.audio_cog import audio_cog
 
-bot = commands.Bot(command_prefix='!')
-bot.remove_command('help')
+class aclient(commands.Bot):
+  def __init__(self):
+    super().__init__(command_prefix="!", intents=discord.Intents.default())
+    self.synced = False
 
-bot.add_cog(audio_cog(bot))
+  async def on_ready(self):
+    await self.wait_until_ready()
+    await self.add_cog(audio_cog(self))
+    if not self.synced:
+      await tree.sync()
+      self.synced=True
+    print(f"We have logged in as {self.user}.")
 
-vc = None
+bot = aclient()
+tree = bot.tree
 
 
-@bot.command()
-async def fuckyou(ctx, member: discord.Member=None):
+@tree.command(name="fuckyou", description="Says fuck you")
+async def fuckyou(interaction: discord.Interaction, member: discord.Member=None):
+  if member is not None:
+    await interaction.response.send_message(f"Yeah, fuck you {member.mention}!")
+  else:
+    await interaction.response.send_message(f"No, fuck you {interaction.user.mention}")
+
+
+@tree.command(name="join", description="Join channel")
+async def join(interaction: discord.Interaction):
   try:
-    await ctx.channel.send("Yeah, fuck you {}".format(member.mention))
-  except:
-    await ctx.channel.send("No, fuck you {}".format(ctx.author.mention))
-
-
-@bot.command()
-async def join(ctx):
-  global vc
-  try:
-    channel = ctx.author.voice.channel
-    vc = await channel.connect()
+    channel = interaction.user.voice.channel
+    await channel.connect()
   except AttributeError:
-    await ctx.channel.send("You should be in a voice channel to add the bot")
+    await interaction.response.send_message("You should be in a voice channel to add the bot")
   except ClientException:
-    await ctx.channel.send("Bot already in a channel")
+    await interaction.response.send_message("Bot already in a channel")
 
 
-@bot.command()
-async def dc(ctx):
+@tree.command(name="disconnect", description="Disconnect from channel")
+async def dc(interaction: discord.Interaction):
   try:
-    await ctx.voice_client.disconnect()
+    await interaction.guild.voice_client.disconnect()
   except:
-    await ctx.channel.send("Bot not connected")
+    await interaction.response.send_message("Bot not connected")
 
 
-@bot.command()
-async def help(ctx):
+@tree.command(name="help", description="Help")
+async def help(interaction: discord.Interaction):
   embed = discord.Embed(
     colour = discord.Colour.purple()
   )
@@ -55,21 +63,23 @@ async def help(ctx):
   embed.add_field(name="$hajime", value="Plays the Hajime audio", inline=False)
   embed.add_field(name="$dc", value="Disconnects the bot from the voice channel", inline=False)
 
-  await ctx.channel.send(embed=embed)
+  await interaction.channel.send(embed=embed)
 
 
 @bot.event
-async def on_voice_state_update(member: discord.Member, before, after):
+async def on_voice_state_update(member: discord.Member, before: VoiceState, after: VoiceState):
     path = r"./sounds/hajime.mp3" if member.guild.id == 455010130854019075 else r"./sounds/sound.mp3"
 
     vc_before = before.channel
     vc_after = after.channel
-    global vc
+
+    if member.bot:
+      return
+    
     if vc_before == vc_after:
-        return
+      return
     if vc_before is not None and vc_after is None:
-      if len(vc_before.members) == 1:
-        await member.guild.voice_client.disconnect()
+      pass
     else:
       try:
         channel = member.voice.channel
