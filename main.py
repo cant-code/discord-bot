@@ -4,8 +4,25 @@ from discord.ext import commands
 import os
 import audioread
 from time import sleep
+import sentry_sdk
+import logging
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from cogs.audio_cog import audio_cog
+
+sentry_logging = LoggingIntegration(
+  level=logging.INFO,
+  event_level=logging.ERROR
+)
+
+sentry_sdk.init(
+  dsn=os.environ['SENTRY_DSN'],
+  integrations=[
+    sentry_logging
+  ],
+  traces_sample_rate=1.0,
+  environment=os.environ['ENV']
+)
 
 class aclient(commands.Bot):
   def __init__(self):
@@ -69,9 +86,15 @@ async def help(interaction: discord.Interaction):
 @bot.event
 async def on_voice_state_update(member: discord.Member, before: VoiceState, after: VoiceState):
     path = r"./sounds/hajime.mp3" if member.guild.id == 455010130854019075 else r"./sounds/sound.mp3"
+    path = r"./sounds/synthesize.mp3" if member.id == 312084826675216387 else path
 
     vc_before = before.channel
     vc_after = after.channel
+    vc = None
+
+    voice_state = member.guild.voice_client
+    if voice_state is not None and len(voice_state.channel.members) == 1:
+      await voice_state.disconnect()
 
     if member.bot:
       return
