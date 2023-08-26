@@ -10,19 +10,20 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 
 from cogs.audio_cog import audio_cog
 
-sentry_logging = LoggingIntegration(
-  level=logging.INFO,
-  event_level=logging.ERROR
-)
+if os.getenv("SENTRY_ENABLED", "False").lower() == "true":
+  sentry_logging = LoggingIntegration(
+    level=logging.INFO,
+    event_level=logging.ERROR
+  )
 
-sentry_sdk.init(
-  dsn=os.environ['SENTRY_DSN'],
-  integrations=[
-    sentry_logging
-  ],
-  traces_sample_rate=1.0,
-  environment=os.environ['ENV']
-)
+  sentry_sdk.init(
+    dsn=os.environ['SENTRY_DSN'],
+    integrations=[
+      sentry_logging
+    ],
+    traces_sample_rate=1.0,
+    environment=os.environ['ENV']
+  )
 
 class aclient(commands.Bot):
   def __init__(self):
